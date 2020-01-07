@@ -141,3 +141,4 @@ CMakeSettings.json
 
 /.vscode/
 /.vs/
+*.code-workspace
