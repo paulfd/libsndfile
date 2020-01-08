@@ -16,7 +16,7 @@ before_build:
 - cmd: cd CMakeBuild
 - cmd: if %platform%==Win32 set CMAKE_GENERATOR=Visual Studio 15 2017
 - cmd: if %platform%==x64   set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-- cmd: cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./../%INSTALL_DIR% -DVCPKG_TARGET_TRIPLET=%VCPKG_TRIPLET% -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+- cmd: cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./../%INSTALL_DIR% -DBUILD_SHARED_LIBS=ON -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 build_script:
 - cmd: cmake --build . --config Release --target install
