@@ -1,23 +1,49 @@
 version: 1.0.29pre1-{build}
 image: Visual Studio 2017
-configuration: Debug
+configuration: Release
 platform:
-  - Win32
-  - x64
+#- Win32
+- x64
+
 install:
-  - if %platform%==Win32 set VCPKG_TRIPLET=x86-windows
-  - if %platform%==x64 set VCPKG_TRIPLET=x64-windows
-  - vcpkg install libogg:%VCPKG_TRIPLET% libvorbis:%VCPKG_TRIPLET% libflac:%VCPKG_TRIPLET% sqlite3:%VCPKG_TRIPLET% opus:%VCPKG_TRIPLET%
+- if %platform%==Win32 set VCPKG_TRIPLET=x86-windows-static
+- if %platform%==x64   set VCPKG_TRIPLET=x64-windows-static
+- vcpkg install libogg:%VCPKG_TRIPLET% libvorbis:%VCPKG_TRIPLET% libflac:%VCPKG_TRIPLET% sqlite3:%VCPKG_TRIPLET% opus:%VCPKG_TRIPLET%
+
 before_build:
-  - mkdir CMakeBuild
-  - cd CMakeBuild
-  - if %platform%==Win32 set CMAKE_GENERATOR=Visual Studio 15 2017
-  - if %platform%==x64 set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-  - cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
-build:
-  project: c:\projects\libsndfile\CMakeBuild\sndfile.sln
-  verbosity: minimal
+- set INSTALL_DIR=libsndfile-%APPVEYOR_REPO_TAG_NAME%-x64
+- mkdir CMakeBuild %INSTALL_DIR%
+- cd CMakeBuild
+- if %platform%==Win32 set CMAKE_GENERATOR=Visual Studio 15 2017
+- if %platform%==x64   set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
+- cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=../${INSTALL_DIR} -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+
+build_script:
+- cmake --build ./CMakeBuild --target install
+
 test_script:
-  - ctest -V
+#- ctest -V
+
 cache:
   C:\Tools\vcpkg\Installed -> appveyor.yml
+
+after_build:
+- cmd: cp COPYING %INSTALL_DIR%\LICENSE.txt
+- cmd: 7z a libsndfile-%APPVEYOR_REPO_TAG_NAME%-x64.zip %INSTALL_DIR%
+
+artifacts:
+- name: package
+  path: 'libsndfile*.zip'
+
+deploy:
+# Deploy to GitHub Releases
+# See https://www.appveyor.com/docs/deployment/github/
+- provider: GitHub
+  auth_token:
+    secure: gxetKofm14xb+6jtoJeTgJaHHu9NAqeOOBrfqP07V3DRvaZMyNSUCMN1FngQAeZv
+  artifact: package
+  draft: false
+  prerelease: false
+  force_update: true
+  on:
+    appveyor_repo_tag: true
