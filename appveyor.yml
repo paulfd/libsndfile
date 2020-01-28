@@ -6,8 +6,8 @@ platform:
 - x64
 
 install:
-- cmd: if %platform%==Win32 set VCPKG_TRIPLET=x86-windows
-- cmd: if %platform%==x64   set VCPKG_TRIPLET=x64-windows
+- cmd: if %platform%==Win32 set VCPKG_TRIPLET=x86-windows-static
+- cmd: if %platform%==x64   set VCPKG_TRIPLET=x64-windows-static
 - cmd: vcpkg install libogg:%VCPKG_TRIPLET% libvorbis:%VCPKG_TRIPLET% libflac:%VCPKG_TRIPLET% opus:%VCPKG_TRIPLET%
 
 before_build:
@@ -16,7 +16,7 @@ before_build:
 - cmd: cd CMakeBuild
 - cmd: if %platform%==Win32 set CMAKE_GENERATOR=Visual Studio 15 2017
 - cmd: if %platform%==x64   set CMAKE_GENERATOR=Visual Studio 15 2017 Win64
-- cmd: cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=./../%INSTALL_DIR% -DBUILD_SHARED_LIBS=ON -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
+- cmd: cmake .. -G"%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=RELEASE -DCMAKE_INSTALL_PREFIX=./../%INSTALL_DIR% -DENABLE_STATIC_RUNTIME=ON -DBUILD_PROGRAMS=OFF -DVCPKG_TARGET_TRIPLET=x64-windows-static -DCMAKE_TOOLCHAIN_FILE=C:/Tools/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 build_script:
 - cmd: cmake --build . --config Release --target install
